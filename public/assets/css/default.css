@@ -61,3 +61,7 @@ p.footer {
 .jumbotron{
 	padding-left:48px;
 }
+
+.container {
+	padding: 48px;
+}
