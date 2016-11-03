@@ -26,6 +26,7 @@ class Welcome extends Application
 			$oddrow = ! $oddrow;
 		}
 		$this->data['content'] = $result;
+		$this->data['pagetitle'] = 'Jim\'s Joints';
 		$this->render();
 	}
 

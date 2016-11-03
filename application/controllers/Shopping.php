@@ -25,11 +25,11 @@ class Shopping extends Application
         $stuff = file_get_contents('../data/receipt.md');
         $this->data['receipt'] = $this->parsedown->parse($stuff);
         $this->data['content'] = '';
-
+				$this->data['pagetitle'] = 'Jim\'s Joints';
         // pictorial menu
         $count = 1;
         foreach ($this->categories->all() as $category) {
-            $chunk = 'category' . $count; 
+            $chunk = 'category' . $count;
             $this->data[$chunk] = $this->parser->parse('category-shop',$category,true);
             foreach($this->menu->all() as $menuitem) {
                     if ($menuitem->category != $category->id) continue;
@@ -38,7 +38,7 @@ class Shopping extends Application
             $count++;
         }
 
-        $this->render('template-shopping'); 
+        $this->render('template-shopping');
     }
 
 }
