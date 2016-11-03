@@ -16,7 +16,10 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="/hiring">Hiring</a></li>
                 <li><a href="/shopping">Shopping</a></li>
+                <li><a href="/toggle">Toggle Role</a></li>
+                <li><a href="/crud">Crud</a></li>
             </ul>
-        </div><!-- /.navbar-collapse -->
+            <p class="navbar-text navbar-right">Role: {userrole}</p>
+          </div>
     </div><!-- /.container-fluid -->
 </nav>
