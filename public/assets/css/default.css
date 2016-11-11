@@ -67,3 +67,7 @@ p.footer {
 #container {
 	padding:24px;
 }
+
+.error {
+	color: red;
+}
