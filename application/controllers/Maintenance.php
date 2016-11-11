@@ -68,26 +68,35 @@ class Maintenance extends Application{
         if (empty($record)) {
         $this->index();
         } */
-        
-        $record = $this->input->post();  // Note: This kinda works ...
-        
-        // Validate form data
+
+        $this->load->library('upload', Menu::$picture_rules); 
+
+        // Retrieve form data 
+        $record = $this->input->post();  // Note: This works unless you want to reload form data 
+                
+        // Validate form data and attempt to upload image 
         $this->form_validation->set_rules(Menu::$rules);
-        if ($this->form_validation->run() == FALSE)
+        if ($this->form_validation->run() == FALSE          // Validate form 
+            || !$this->upload->do_upload('picture'))
         {
             $this->data['pagebody'] = "maintenance-edit";
-            $this->data['errors'] = validation_errors();
-            $this->load_form_data($record);
+            $this->data['errors'] = validation_errors() . $this->upload->display_errors();
+            $this->load_form_data($record);                 // Refill the form with previous data. 
             $this->render();
         }
         else
         {
-            // Add or Update 
+            // Manually set the filename as the column value 
+            $record['picture'] = $this->upload->client_name; 
+
+            // Add or Update
             if (!$this->menu->exists($record['id'])) {
                 $this->menu->add($record);
             } else {
                 $this->menu->update($record);
             }
+
+            // Return to index 
             redirect('maintenance');
             // $this->load->view('formsuccess');
         }
@@ -108,14 +117,15 @@ class Maintenance extends Application{
         // initialize any other related data
         $categories = $this->categories->all();     // get an array of category objects
         foreach($categories as $code => $category)  // make it into an associative array
-        $codes[$code] = $category->name;
+            $codes[$code] = $category->name;
+        $picture = (isset($data['picture'])) ? $data['picture'] : "";   // Note: If an upload fails, this will be unset. 
         
         // build the form fields
         $this->data['fid'] = makeTextField('Menu code', 'id', $data['id']);
         $this->data['fname'] = makeTextField('Item name', 'name', $data['name']);
         $this->data['fdescription'] = makeTextArea('Description', 'description', $data['description']);
         $this->data['fprice'] = makeTextField('Price, each', 'price', $data['price']);
-        $this->data['fpicture'] = makeTextField('Item image', 'picture', $data['picture']);
+        $this->data['fpicture'] = makeFileUpload('Picture', 'picture', $picture);
         $this->data['fcategory'] = makeCombobox('Category', 'category', $data['category'], $codes);
         $this->data['zsubmit'] = makeSubmitButton('Save', 'Submit changes');
     }
