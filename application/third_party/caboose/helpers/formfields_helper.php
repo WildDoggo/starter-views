@@ -204,3 +204,32 @@ if (!function_exists('makeSubmitButton'))
 	}
 
 }
+
+/**
+ *  Construct a file input.
+ * 
+ * @param string $label Descriptive label for the control
+ * @param string $name ID and name of the control; s/b the same as the RDB table column
+ * @param mixed $value Initial value for the control
+ * @param string $explain Help text for the control
+ * @param int $size size in MB of the input control (Note: Does not work)
+ * @param boolean $disabled True if non-editable
+ */
+if (!function_exists('makeFileUpload'))
+{
+
+	function makeFileUpload($label, $name, $value, $explain = "", $size = 1, $disabled = false)
+	{
+		$CI = &get_instance();
+		$parms = array(
+			'label' => $label,
+			'name' => $name,
+			'value' => htmlentities($value, ENT_COMPAT, 'UTF-8'),
+			'explain' => $explain,
+			'size' => $size,
+			'disabled' => ($disabled ? 'disabled="disabled"' : '')
+		);
+		return $CI->parser->parse('_fields/fileupload', $parms, true);
+	}
+
+}
