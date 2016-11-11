@@ -1,4 +1,5 @@
 <h2>Menu Maintenance - Editing</h2>
+<span class='error' style="color:red">{errors}</span>
 <form action="/maintenance/save" method="post">
 {fid}
 {fname}

@@ -4,11 +4,12 @@ class Maintenance extends Application{
     
     public function __construct() {
         parent::__construct();
-        $this->load->helper('formfields');
+        $this->load->helper('formfields', 'form', 'url');
+        $this->load->library('form_validation');
     }
     
     public function index() {
-        // Warning: Below prevents access to the index page ONLY 
+        // Warning: Below prevents access to the index page ONLY
         // Get current user's role
         $userrole = $this->session->userdata('userrole');
         
@@ -27,46 +28,96 @@ class Maintenance extends Application{
         $this->render();
     }
     
-    public function create($id) {
-        
+    public function create() {
+        $this->load_form_data();
+        $this->data['errors'] = "";
+        $this->data['pagebody'] = "maintenance-edit";
+        $this->render();
     }
     
     public function edit($id=null) {
-        /* Note: Too unreliable (Back button, click index, manual search) 
+        /* Note: Too unreliable (Back button, click index, manual search)
         // find the record through the session first
         $key = $this->session->userdata('key');
         $record = $this->session->userdata('record'); */
-
-        // Retrieve record 
+        
+        // Retrieve record
         if (empty($key)) {
-            $record = $this->menu->get($id);        // Warning: Record not found not handled  
+            $record = $this->menu->get($id);        // Warning: Record not found not handled
             $key = $id;
             $this->session->set_userdata('key',$id);
             $this->session->set_userdata('record',$record);
         }
         
-        // initialize any other related data
-        $categories = $this->categories->all();     // get an array of category objects
-        foreach($categories as $code => $category)  // make it into an associative array
-            $codes[$code] = $category->name;
-        
-        // build the form fields
-        $this->data['fid'] = makeTextField('Menu code', 'id', $record->id);
-        $this->data['fname'] = makeTextField('Item name', 'name', $record->name);
-        $this->data['fdescription'] = makeTextArea('Description', 'description', $record->description);
-        $this->data['fprice'] = makeTextField('Price, each', 'price', $record->price);
-        $this->data['fpicture'] = makeTextField('Item image', 'picture', $record->picture);
-        $this->data['fcategory'] = makeCombobox('Category', 'category', $record->category,$codes);
-        $this->data['zsubmit'] = makeSubmitButton('Save', 'Submit changes');
+        // Load data
+        $this->load_form_data($record);
+        $this->data['errors'] = "";
         
         // show the editing form
         $this->data['pagebody'] = "maintenance-edit";
-        //$this->data['content'] = "Looking at " . $key . ': ' . $record->name;
         $this->render();
     }
     
-    public function delete($id) {
+    // POST
+    public function save() {
+        /* Note: Too unreliable (see above)
+        // try the session first
+        $key = $this->session->userdata('key');
+        $record = $this->session->userdata('record');
+        // if not there, nothing is in progress
+        if (empty($record)) {
+        $this->index();
+        } */
         
+        $record = $this->input->post();  // Note: This kinda works ...
+        
+        // Validate form data
+        $this->form_validation->set_rules(Menu::$rules);
+        if ($this->form_validation->run() == FALSE)
+        {
+            $this->data['pagebody'] = "maintenance-edit";
+            $this->data['errors'] = validation_errors();
+            $this->load_form_data($record);
+            $this->render();
+        }
+        else
+        {
+            // Add or Update 
+            if (!$this->menu->exists($record['id'])) {
+                $this->menu->add($record);
+            } else {
+                $this->menu->update($record);
+            }
+            redirect('maintenance');
+            // $this->load->view('formsuccess');
+        }
+    }
+    
+    public function delete($id) {
+        $this->menu->delete($id);
+        redirect('maintenance');
+    }
+    
+    private function load_form_data($record=null) {
+        // convert object to associative array, if needed
+        if (is_object($record))
+            $data = get_object_vars($record);
+        else
+            $data = $record;
+        
+        // initialize any other related data
+        $categories = $this->categories->all();     // get an array of category objects
+        foreach($categories as $code => $category)  // make it into an associative array
+        $codes[$code] = $category->name;
+        
+        // build the form fields
+        $this->data['fid'] = makeTextField('Menu code', 'id', $data['id']);
+        $this->data['fname'] = makeTextField('Item name', 'name', $data['name']);
+        $this->data['fdescription'] = makeTextArea('Description', 'description', $data['description']);
+        $this->data['fprice'] = makeTextField('Price, each', 'price', $data['price']);
+        $this->data['fpicture'] = makeTextField('Item image', 'picture', $data['picture']);
+        $this->data['fcategory'] = makeCombobox('Category', 'category', $data['category'], $codes);
+        $this->data['zsubmit'] = makeSubmitButton('Save', 'Submit changes');
     }
     
     function cancel() {
