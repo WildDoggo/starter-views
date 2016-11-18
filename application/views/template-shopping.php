@@ -22,10 +22,14 @@
                         </div>
                         <div class='col-md-4'>
                             {category3}
-                        </div>
-                    </div>
-                </div>
-                <div class='col-md-3'>
+                          </div>
+                  </div>
+                  <div class="row">
+                    <a class="btn btn-primary btn-default" role="button" href="/shopping/checkout">Checkout</a>
+                    <a class="btn btn-default" role="button" href="/shopping/cancel">Cancel This Order</a>
+                  </div>
+          </div>
+          <div class='col-md-3'>
                 {receipt}
                 </div>
             </div>
